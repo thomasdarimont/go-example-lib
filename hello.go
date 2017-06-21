@@ -2,7 +2,6 @@ package hello
 
 import (
 	"fmt"
-	"sync"
 )
 
 // Greeter provides invidualized greeting messages
@@ -14,21 +13,22 @@ type Greeter interface {
 
 // greeter is the default implementation of Greeter
 type greeter struct {
+	greetingTemplate string
 }
 
-var (
-	instance Greeter
-	once     sync.Once
-)
-
-// Returns the default Greeter instance
+// Returns an instance to the  default Greeter
 func DefaultGreeter() Greeter {
+	return GreeterWith("")
+}
 
-	once.Do(func() {
-		instance = &greeter{}
-	})
+// Returns a Greeter instance with the provided greeting template
+func GreeterWith(greetingTemplate string) Greeter {
 
-	return instance
+	if greetingTemplate != "" {
+		return &greeter{greetingTemplate}
+	}
+
+	return &greeter{"Hello %s"}
 }
 
 // Greet returns a simple individualized greeting
@@ -38,5 +38,5 @@ func (g *greeter) Greet(name string) string {
 		name = "World"
 	}
 
-	return fmt.Sprintf("Hello %s", name)
+	return fmt.Sprintf(g.greetingTemplate, name)
 }
